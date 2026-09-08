@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NEO SLOT - HTML SLOT MACHINE</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background:
+        radial-gradient(circle at center, #333 0%, #111 70%);
+    color: white;
+    font-family:
+        Arial,
+        "Hiragino Kaku Gothic ProN",
+        Meiryo,
+        sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ==============================
+   筐体
+============================== */
+
+.machine {
+
+    width: 620px;
+    max-width: 96vw;
+
+    background:
+        linear-gradient(
+            135deg,
+            #444,
+            #151515 25%,
+            #292929 70%,
+            #090909
+        );
+
+    border: 8px solid #555;
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 0 20px #000,
+        inset 0 0 20px #000;
+
+    padding: 20px;
+
+}
+
+/* ==============================
+   タイトル
+============================== */
+
+.title {
+
+    text-align: center;
+
+    font-size: 32px;
+
+    font-weight: bold;
+
+    letter-spacing: 5px;
+
+    margin-bottom: 15px;
+
+    color: #ffd700;
+
+    text-shadow:
+        0 0 5px #ff8800,
+        0 0 15px #ff0000;
+
+}
+
+/* ==============================
+   上部情報
+============================== */
+
+.status {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr
+        1fr;
+
+    gap: 8px;
+
+    margin-bottom: 15px;
+
+}
+
+.status-box {
+
+    background: #050505;
+
+    border:
+        2px solid #666;
+
+    border-radius: 8px;
+
+    padding: 8px;
+
+    text-align: center;
+
+}
+
+.status-label {
+
+    font-size: 12px;
+
+    color: #aaa;
+
+}
+
+.status-value {
+
+    font-size: 22px;
+
+    color: #00ff66;
+
+    font-weight: bold;
+
+    font-family: monospace;
+
+}
+
+/* ==============================
+   液晶
+============================== */
+
+.display {
+
+    background:
+        radial-gradient(
+            circle,
+            #123 0%,
+            #020708 80%
+        );
+
+    border:
+        5px solid #111;
+
+    border-radius: 12px;
+
+    min-height: 90px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    margin-bottom: 18px;
+
+    box-shadow:
+        inset 0 0 25px #000;
+
+}
+
+.display-main {
+
+    font-size: 25px;
+
+    font-weight: bold;
+
+    color: #fff;
+
+}
+
+.display-sub {
+
+    font-size: 13px;
+
+    color: #aaa;
+
+    margin-top: 5px;
+
+}
+
+/* ==============================
+   リール
+============================== */
+
+.reel-area {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    background:
+        linear-gradient(
+            #111,
+            #333,
+            #111
+        );
+
+    border:
+        5px solid #111;
+
+    border-radius: 15px;
+
+    padding: 18px;
+
+    position: relative;
+
+}
+
+/* 中央ライン */
+
+.reel-area::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 15px;
+
+    right: 15px;
+
+    top: 50%;
+
+    height: 4px;
+
+    background: rgba(255,0,0,0.75);
+
+    box-shadow:
+        0 0 8px red;
+
+    pointer-events: none;
+
+}
+
+.reel-window {
+
+    width: 165px;
+
+    height: 210px;
+
+    background: #eee;
+
+    border:
+        5px solid #777;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+    position: relative;
+
+    box-shadow:
+        inset 0 0 15px #000;
+
+}
+
+/* リール本体 */
+
+.reel {
+
+    width: 100%;
+
+    height: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ddd,
+            #fff,
+            #ddd
+        );
+
+}
+
+/* 図柄 */
+
+.symbol {
+
+    width: 100%;
+
+    height: 70px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    font-size: 48px;
+
+    font-weight: bold;
+
+    color: #111;
+
+    text-shadow:
+        1px 1px 2px #999;
+
+}
+
+.symbol.seven {
+    color: #d00000;
+}
+
+.symbol.bar {
+    color: #111;
+    font-size: 34px;
+}
+
+.symbol.bell {
+    color: #d89b00;
+}
+
+.symbol.cherry {
+    color: #e00000;
+}
+
+.symbol.watermelon {
+    color: #008800;
+}
+
+/* ==============================
+   リール回転
+============================== */
+
+.spinning {
+
+    animation:
+        reelShake 0.08s linear infinite;
+
+}
+
+@keyframes reelShake {
+
+    0% {
+        transform: translateY(-10px);
+    }
+
+    50% {
+        transform: translateY(10px);
+    }
+
+    100% {
+        transform: translateY(-10px);
+    }
+
+}
+
+/* ==============================
+   ランプ
+============================== */
+
+.lamps {
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    margin: 15px 0;
+
+}
+
+.lamp {
+
+    width: 18px;
+
+    height: 18px;
+
+    border-radius: 50%;
+
+    background: #333;
+
+    border: 2px solid #111;
+
+}
+
+.lamp.on {
+
+    background: #ffff00;
+
+    box-shadow:
+        0 0 8px #ffff00,
+        0 0 20px #ff8800;
+
+}
+
+/* ==============================
+   ボタン
+============================== */
+
+.controls {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr
+        1fr
+        1fr;
+
+    gap: 10px;
+
+    margin-top: 15px;
+
+}
+
+button {
+
+    border: none;
+
+    border-radius: 10px;
+
+    padding: 15px 5px;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    color: white;
+
+    box-shadow:
+        0 5px 0 #111;
+
+    transition: 0.08s;
+
+}
+
+button:active {
+
+    transform: translateY(4px);
+
+    box-shadow:
+        0 1px 0 #111;
+
+}
+
+.bet {
+
+    background:
+        linear-gradient(#555,#222);
+
+}
+
+.start {
+
+    background:
+        linear-gradient(#e22,#700);
+
+    font-size: 22px;
+
+}
+
+.stop {
+
+    background:
+        linear-gradient(#2266cc,#102f70);
+
+}
+
+/* ==============================
+   設定
+============================== */
+
+.settings {
+
+    margin-top: 18px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+}
+
+select {
+
+    background: #111;
+
+    color: white;
+
+    border: 1px solid #777;
+
+    padding: 8px;
+
+    border-radius: 5px;
+
+}
+
+/* ==============================
+   履歴
+============================== */
+
+.history {
+
+    margin-top: 15px;
+
+    background: #050505;
+
+    border: 1px solid #444;
+
+    border-radius: 8px;
+
+    padding: 8px;
+
+    height: 90px;
+
+    overflow-y: auto;
+
+    font-family: monospace;
+
+    font-size: 13px;
+
+}
+
+.history div {
+
+    margin: 2px 0;
+
+}
+
+/* ==============================
+   BONUS表示
+============================== */
+
+.bonus {
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+        rgba(0,0,0,0.82);
+
+    display: none;
+
+    justify-content: center;
+
+    align-items: center;
+
+    z-index: 100;
+
+}
+
+.bonus.show {
+
+    display: flex;
+
+}
+
+.bonus-box {
+
+    text-align: center;
+
+    animation:
+        bonusPop 0.5s ease;
+
+}
+
+@keyframes bonusPop {
+
+    from {
+
+        transform:
+            scale(0);
+
+    }
+
+    to {
+
+        transform:
+            scale(1);
+
+    }
+
+}
+
+.bonus-title {
+
+    font-size: 70px;
+
+    font-weight: bold;
+
+    color: #ffd700;
+
+    text-shadow:
+        0 0 10px red,
+        0 0 30px orange;
+
+}
+
+.bonus-sub {
+
+    font-size: 25px;
+
+}
+
+/* ==============================
+   スマホ
+============================== */
+
+@media(max-width:600px) {
+
+    .machine {
+        padding: 10px;
+    }
+
+    .title {
+        font-size: 23px;
+    }
+
+    .reel-window {
+        width: 30vw;
+        height: 170px;
+    }
+
+    .symbol {
+        font-size: 35px;
+    }
+
+    .symbol.bar {
+        font-size: 24px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="machine">
+
+    <div class="title">
+        !!!!!TAKUMI HONDA!!!!!
+    </div>
+
+    <!-- ======================
+         情報
+    ======================= -->
+
+    <div class="status">
+
+        <div class="status-box">
+
+            <div class="status-label">
+                CREDIT
+            </div>
+
+            <div
+                class="status-value"
+                id="credit"
+            >
+                100
+            </div>
+
+        </div>
+
+        <div class="status-box">
+
+            <div class="status-label">
+                PAYOUT
+            </div>
+
+            <div
+                class="status-value"
+                id="payout"
+            >
+                0
+            </div>
+
+        </div>
+
+        <div class="status-box">
+
+            <div class="status-label">
+                GAME
+            </div>
+
+            <div
+                class="status-value"
+                id="game"
+            >
+                0
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================
+         液晶
+    ======================= -->
+
+    <div class="display">
+
+        <div
+            class="display-main"
+            id="displayMain"
+        >
+            READY
+        </div>
+
+        <div
+            class="display-sub"
+            id="displaySub"
+        >
+            BETを入れてSTART
+        </div>
+
+    </div>
+
+
+    <!-- ======================
+         リール
+    ======================= -->
+
+    <div class="reel-area">
+
+        <div class="reel-window">
+            <div
+                class="reel"
+                id="reel0"
+            ></div>
+        </div>
+
+        <div class="reel-window">
+            <div
+                class="reel"
+                id="reel1"
+            ></div>
+        </div>
+
+        <div class="reel-window">
+            <div
+                class="reel"
+                id="reel2"
+            ></div>
+        </div>
+
+    </div>
+
+
+    <!-- ======================
+         ランプ
+    ======================= -->
+
+    <div class="lamps">
+
+        <div class="lamp" id="lamp0"></div>
+        <div class="lamp" id="lamp1"></div>
+        <div class="lamp" id="lamp2"></div>
+        <div class="lamp" id="lamp3"></div>
+        <div class="lamp" id="lamp4"></div>
+        <div class="lamp" id="lamp5"></div>
+
+    </div>
+
+
+    <!-- ======================
+         ボタン
+    ======================= -->
+
+    <div class="controls">
+
+        <button
+            class="bet"
+            id="bet1"
+        >
+            1 BET
+        </button>
+
+        <button
+            class="start"
+            id="start"
+        >
+            START(SPACE)
+        </button>
+
+        <button
+            class="bet"
+            id="maxBet"
+        >
+            MAX BET
+        </button>
+
+        <button
+            class="stop"
+            id="stop0"
+        >
+            STOP 1(Z)
+        </button>
+
+        <button
+            class="stop"
+            id="stop1"
+        >
+            STOP 2(X)
+        </button>
+
+        <button
+            class="stop"
+            id="stop2"
+        >
+            STOP 3(C)
+        </button>
+
+    </div>
+
+
+    <!-- ======================
+         設定
+    ======================= -->
+
+    <div class="settings">
+
+        <span>
+            設定
+        </span>
+
+        <select id="setting">
+
+            <option value="1">
+                設定1
+            </option>
+
+            <option value="2">
+                設定2
+            </option>
+
+            <option value="3">
+                設定3
+            </option>
+
+            <option value="4">
+                設定4
+            </option>
+
+            <option value="5">
+                設定5
+            </option>
+
+            <option value="6">
+                設定6
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ======================
+         履歴
+    ======================= -->
+
+    <div
+        class="history"
+        id="history"
+    >
+        <div>--- GAME HISTORY ---</div>
+    </div>
+
+</div>
+
+
+<!-- ==========================
+     BONUS画面
+=========================== -->
+
+<div
+    class="bonus"
+    id="bonus"
+>
+
+    <div class="bonus-box">
+
+        <div
+            class="bonus-title"
+            id="bonusTitle"
+        >
+            BIG BONUS
+        </div>
+
+        <div
+            class="bonus-sub"
+            id="bonusSub"
+        >
+            BONUS START
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+"use strict";
+
+/* ==========================================
+   DOM
+========================================== */
+
+const creditEl =
+    document.getElementById("credit");
+
+const payoutEl =
+    document.getElementById("payout");
+
+const gameEl =
+    document.getElementById("game");
+
+const displayMain =
+    document.getElementById("displayMain");
+
+const displaySub =
+    document.getElementById("displaySub");
+
+const historyEl =
+    document.getElementById("history");
+
+const bonusEl =
+    document.getElementById("bonus");
+
+const bonusTitle =
+    document.getElementById("bonusTitle");
+
+const bonusSub =
+    document.getElementById("bonusSub");
+
+const settingEl =
+    document.getElementById("setting");
+
+
+/* ==========================================
+   ゲーム状態
+========================================== */
+
+let credit = 100;
+
+let payout = 0;
+
+let gameCount = 0;
+
+let bet = 0;
+
+let spinning = false;
+
+let stopCount = 0;
+
+let bonusMode = null;
+
+let bonusGame = 0;
+
+let totalBonusPayout = 0;
+
+
+/* ==========================================
+   図柄
+========================================== */
+
+const SYMBOLS = [
+
+    {
+        name: "BAR",
+        icon: "BAR",
+        className: "bar"
+    },
+
+    {
+        name: "7",
+        icon: "7",
+        className: "seven"
+    },
+
+    {
+        name: "ベル",
+        icon: "🔔",
+        className: "bell"
+    },
+
+    {
+        name: "チェリー",
+        icon: "🍒",
+        className: "cherry"
+    },
+
+    {
+        name: "スイカ",
+        icon: "🍉",
+        className: "watermelon"
+    }
+
+];
+
+
+/* ==========================================
+   設定ごとの確率
+========================================== */
+
+/*
+    数値は「ゲームごとの当選確率」。
+
+    設定6ほどBONUSに
+    当たりやすくなる。
+*/
+
+const SETTINGS = {
+
+    1: {
+        big: 1 / 300,
+        reg: 1 / 450
+    },
+
+    2: {
+        big: 1 / 280,
+        reg: 1 / 430
+    },
+
+    3: {
+        big: 1 / 260,
+        reg: 1 / 400
+    },
+
+    4: {
+        big: 1 / 230,
+        reg: 1 / 360
+    },
+
+    5: {
+        big: 1 / 200,
+        reg: 1 / 320
+    },
+
+    6: {
+        big: 1 / 170,
+        reg: 1 / 280
+    }
+
+};
+
+
+/* ==========================================
+   小役確率
+========================================== */
+
+const PAYOUTS = {
+
+    cherry: 2,
+
+    bell: 8,
+
+    watermelon: 5
+
+};
+
+
+/* ==========================================
+   リール状態
+========================================== */
+
+const reels = [
+
+    {
+        element:
+            document.getElementById("reel0"),
+
+        spinning: false,
+
+        timer: null,
+
+        symbol: null
+    },
+
+    {
+        element:
+            document.getElementById("reel1"),
+
+        spinning: false,
+
+        timer: null,
+
+        symbol: null
+    },
+
+    {
+        element:
+            document.getElementById("reel2"),
+
+        spinning: false,
+
+        timer: null,
+
+        symbol: null
+    }
+
+];
+
+
+/* ==========================================
+   初期リール
+========================================== */
+
+function showSymbol(
+    reel,
+    symbol
+) {
+
+    reel.element.innerHTML = "";
+
+    const div =
+        document.createElement("div");
+
+    div.className =
+        "symbol " + symbol.className;
+
+    div.textContent =
+        symbol.icon;
+
+    reel.element.appendChild(div);
+
+    reel.symbol = symbol;
+}
+
+
+/* ==========================================
+   ランダム図柄
+========================================== */
+
+function randomSymbol() {
+
+    return SYMBOLS[
+        Math.floor(
+            Math.random() *
+            SYMBOLS.length
+        )
+    ];
+
+}
+
+
+/* ==========================================
+   リールを回す
+========================================== */
+
+function startReel(index) {
+
+    const reel = reels[index];
+
+    reel.spinning = true;
+
+    reel.element.classList.add(
+        "spinning"
+    );
+
+    reel.timer = setInterval(() => {
+
+        showSymbol(
+            reel,
+            randomSymbol()
+        );
+
+    }, 60);
+
+}
+
+
+/* ==========================================
+   リール停止
+========================================== */
+
+function stopReel(index) {
+
+    const reel = reels[index];
+
+    if (!reel.spinning) {
+        return;
+    }
+
+    reel.spinning = false;
+
+    clearInterval(
+        reel.timer
+    );
+
+    reel.element.classList.remove(
+        "spinning"
+    );
+
+    const result =
+        determineReelSymbol();
+
+    showSymbol(
+        reel,
+        result
+    );
+
+    stopCount++;
+
+    updateDisplay();
+
+    if (stopCount === 3) {
+
+        finishSpin();
+
+    }
+
+}
+
+
+/* ==========================================
+   当選図柄を決める
+========================================== */
+
+function determineReelSymbol() {
+
+    /*
+        BONUSが成立している場合、
+        3つ揃うようにする。
+
+        小役も少し出やすくする。
+    */
+
+    if (currentResult !== null) {
+
+        return currentResult[
+            stopCount
+        ];
+
+    }
+
+    const r =
+        Math.random();
+
+    if (r < 0.12) {
+
+        return SYMBOLS[2];
+
+    }
+
+    if (r < 0.17) {
+
+        return SYMBOLS[3];
+
+    }
+
+    if (r < 0.20) {
+
+        return SYMBOLS[4];
+
+    }
+
+    return randomSymbol();
+
+}
+
+
+/* ==========================================
+   今回の成立役
+========================================== */
+
+let currentResult = null;
+
+
+/* ==========================================
+   当選抽選
+========================================== */
+
+function lottery() {
+
+    const setting =
+        SETTINGS[
+            Number(settingEl.value)
+        ];
+
+    const r =
+        Math.random();
+
+    /*
+        BIG
+    */
+
+    if (
+        r <
+        setting.big
+    ) {
+
+        return "BIG";
+
+    }
+
+    /*
+        REG
+    */
+
+    if (
+        r <
+        setting.big +
+        setting.reg
+    ) {
+
+        return "REG";
+
+    }
+
+    /*
+        小役
+    */
+
+    const small =
+        Math.random();
+
+    if (small < 0.12) {
+
+        return "BELL";
+
+    }
+
+    if (small < 0.17) {
+
+        return "CHERRY";
+
+    }
+
+    if (small < 0.20) {
+
+        return "WATERMELON";
+
+    }
+
+    return "MISS";
+
+}
+
+
+/* ==========================================
+   成立役から図柄を作る
+========================================== */
+
+function createResult(type) {
+
+    switch(type) {
+
+        case "BIG":
+
+            return [
+                SYMBOLS[1],
+                SYMBOLS[1],
+                SYMBOLS[1]
+            ];
+
+        case "REG":
+
+            return [
+                SYMBOLS[0],
+                SYMBOLS[0],
+                SYMBOLS[0]
+            ];
+
+        case "BELL":
+
+            return [
+                SYMBOLS[2],
+                SYMBOLS[2],
+                SYMBOLS[2]
+            ];
+
+        case "CHERRY":
+
+            return [
+                SYMBOLS[3],
+                SYMBOLS[3],
+                SYMBOLS[3]
+            ];
+
+        case "WATERMELON":
+
+            return [
+                SYMBOLS[4],
+                SYMBOLS[4],
+                SYMBOLS[4]
+            ];
+
+        default:
+
+            return [
+                randomSymbol(),
+                randomSymbol(),
+                randomSymbol()
+            ];
+
+    }
+
+}
+
+
+/* ==========================================
+   START
+========================================== */
+
+function startGame() {
+
+    /*
+        BONUS中
+    */
+
+    if (bonusMode !== null) {
+
+        startBonusGame();
+
+        return;
+
+    }
+
+
+    if (spinning) {
+
+        return;
+
+    }
+
+
+    /*
+        BET
+    */
+
+    if (credit < 3) {
+
+        displayMain.textContent =
+            "CREDIT EMPTY";
+
+        displaySub.textContent =
+            "コインを追加してください";
+
+        return;
+
+    }
+
+
+    credit -= 3;
+
+    payout = 0;
+
+    gameCount++;
+
+    spinning = true;
+
+    stopCount = 0;
+
+
+    /*
+        抽選
+    */
+
+    const result =
+        lottery();
+
+    currentResult =
+        createResult(result);
+
+
+    /*
+        表示
+    */
+
+    displayMain.textContent =
+        "SPIN";
+
+    displaySub.textContent =
+        "リールを停止してください";
+
+
+    /*
+        リール開始
+    */
+
+    startReel(0);
+    startReel(1);
+    startReel(2);
+
+
+    updateDisplay();
+
+}
+
+
+/* ==========================================
+   スピン終了
+========================================== */
+
+function finishSpin() {
+
+    spinning = false;
+
+    const result =
+        judgeResult();
+
+
+    currentResult = null;
+
+
+    switch(result) {
+
+        case "BIG":
+
+            startBig();
+
+            break;
+
+
+        case "REG":
+
+            startReg();
+
+            break;
+
+
+        case "BELL":
+
+            givePayout(
+                PAYOUTS.bell,
+                "🔔 ベル"
+            );
+
+            break;
+
+
+        case "CHERRY":
+
+            givePayout(
+                PAYOUTS.cherry,
+                "🍒 チェリー"
+            );
+
+            break;
+
+
+        case "WATERMELON":
+
+            givePayout(
+                PAYOUTS.watermelon,
+                "🍉 スイカ"
+            );
+
+            break;
+
+
+        default:
+
+            displayMain.textContent =
+                "ハズレ";
+
+            displaySub.textContent =
+                "NEXT GAME";
+
+            break;
+
+    }
+
+    updateDisplay();
+
+}
+
+
+/* ==========================================
+   結果判定
+========================================== */
+
+function judgeResult() {
+
+    const a =
+        reels[0].symbol.name;
+
+    const b =
+        reels[1].symbol.name;
+
+    const c =
+        reels[2].symbol.name;
+
+
+    if (
+        a === "7" &&
+        b === "7" &&
+        c === "7"
+    ) {
+
+        return "BIG";
+
+    }
+
+
+    if (
+        a === "BAR" &&
+        b === "BAR" &&
+        c === "BAR"
+    ) {
+
+        return "REG";
+
+    }
+
+
+    if (
+        a === "ベル" &&
+        b === "ベル" &&
+        c === "ベル"
+    ) {
+
+        return "BELL";
+
+    }
+
+
+    if (
+        a === "チェリー" &&
+        b === "チェリー" &&
+        c === "チェリー"
+    ) {
+
+        return "CHERRY";
+
+    }
+
+
+    if (
+        a === "スイカ" &&
+        b === "スイカ" &&
+        c === "スイカ"
+    ) {
+
+        return "WATERMELON";
+
+    }
+
+
+    return "MISS";
+
+}
+
+
+/* ==========================================
+   払い出し
+========================================== */
+
+function givePayout(
+    amount,
+    name
+) {
+
+    credit += amount;
+
+    payout = amount;
+
+    displayMain.textContent =
+        name;
+
+    displaySub.textContent =
+        "+" + amount + " MEDAL";
+
+
+    addHistory(
+        name +
+        " +" +
+        amount
+    );
+
+    flashLamps();
+
+}
+
+
+/* ==========================================
+   BIG開始
+========================================== */
+
+function startBig() {
+
+    bonusMode = "BIG";
+
+    bonusGame = 30;
+
+    totalBonusPayout = 0;
+
+    showBonus(
+        "BIG BONUS",
+        "30 GAMES"
+    );
+
+}
+
+
+/* ==========================================
+   REG開始
+========================================== */
+
+function startReg() {
+
+    bonusMode = "REG";
+
+    bonusGame = 15;
+
+    totalBonusPayout = 0;
+
+    showBonus(
+        "REG BONUS",
+        "15 GAMES"
+    );
+
+}
+
+
+/* ==========================================
+   BONUS表示
+========================================== */
+
+function showBonus(
+    title,
+    sub
+) {
+
+    bonusTitle.textContent =
+        title;
+
+    bonusSub.textContent =
+        sub;
+
+    bonusEl.classList.add(
+        "show"
+    );
+
+    flashLamps();
+
+    setTimeout(() => {
+
+        bonusEl.classList.remove(
+            "show"
+        );
+
+        displayMain.textContent =
+            title;
+
+        displaySub.textContent =
+            "BONUS START";
+
+        updateDisplay();
+
+    }, 1200);
+
+}
+
+
+/* ==========================================
+   BONUSゲーム
+========================================== */
+
+function startBonusGame() {
+
+    if (
+        bonusMode === null ||
+        bonusGame <= 0
+    ) {
+
+        endBonus();
+
+        return;
+
+    }
+
+
+    if (spinning) {
+
+        return;
+
+    }
+
+
+    spinning = true;
+
+    stopCount = 0;
+
+    bonusGame--;
+
+
+    /*
+        BONUS中は小役が出やすい
+    */
+
+    const r =
+        Math.random();
+
+    if (r < 0.55) {
+
+        currentResult = [
+            SYMBOLS[2],
+            SYMBOLS[2],
+            SYMBOLS[2]
+        ];
+
+    }
+
+    else if (r < 0.75) {
+
+        currentResult = [
+            SYMBOLS[3],
+            SYMBOLS[3],
+            SYMBOLS[3]
+        ];
+
+    }
+
+    else if (r < 0.90) {
+
+        currentResult = [
+            SYMBOLS[4],
+            SYMBOLS[4],
+            SYMBOLS[4]
+        ];
+
+    }
+
+    else {
+
+        currentResult = [
+            randomSymbol(),
+            randomSymbol(),
+            randomSymbol()
+        ];
+
+    }
+
+
+    startReel(0);
+    startReel(1);
+    startReel(2);
+
+
+    displayMain.textContent =
+        bonusMode + " BONUS";
+
+    displaySub.textContent =
+        "残り " +
+        bonusGame +
+        " G";
+
+}
+
+
+/* ==========================================
+   BONUS終了
+========================================== */
+
+function endBonus() {
+
+    const name =
+        bonusMode;
+
+
+    bonusMode = null;
+
+    bonusGame = 0;
+
+
+    displayMain.textContent =
+        "BONUS END";
+
+    displaySub.textContent =
+        "獲得 +" +
+        totalBonusPayout +
+        " MEDAL";
+
+
+    addHistory(
+        name +
+        " END +" +
+        totalBonusPayout
+    );
+
+
+    flashLamps();
+
+
+    updateDisplay();
+
+}
+
+
+/* ==========================================
+   BONUS中の結果処理
+========================================== */
+
+function finishBonusSpin() {
+
+    spinning = false;
+
+    const result =
+        judgeResult();
+
+
+    if (result === "BELL") {
+
+        giveBonusPayout(
+            8
+        );
+
+    }
+
+    else if (
+        result === "CHERRY"
+    ) {
+
+        giveBonusPayout(
+            2
+        );
+
+    }
+
+    else if (
+        result === "WATERMELON"
+    ) {
+
+        giveBonusPayout(
+            5
+        );
+
+    }
+
+
+    currentResult = null;
+
+
+    if (
+        bonusGame <= 0
+    ) {
+
+        endBonus();
+
+    }
+
+    else {
+
+        displayMain.textContent =
+            bonusMode + " BONUS";
+
+        displaySub.textContent =
+            "残り " +
+            bonusGame +
+            " G";
+
+    }
+
+
+    updateDisplay();
+
+}
+
+
+/* ==========================================
+   BONUS払い出し
+========================================== */
+
+function giveBonusPayout(
+    amount
+) {
+
+    credit += amount;
+
+    payout = amount;
+
+    totalBonusPayout += amount;
+
+    flashLamps();
+
+}
+
+
+/* ==========================================
+   リール停止ボタン
+========================================== */
+
+function stop(index) {
+
+    if (!spinning) {
+
+        return;
+
+    }
+
+
+    stopReel(index);
+
+
+    if (
+        stopCount === 3 &&
+        bonusMode !== null
+    ) {
+
+        /*
+            通常のfinishSpinではなく
+            BONUS用処理
+        */
+
+        finishBonusSpin();
+
+    }
+
+}
+
+
+/* ==========================================
+   表示更新
+========================================== */
+
+function updateDisplay() {
+
+    creditEl.textContent =
+        credit;
+
+    payoutEl.textContent =
+        payout;
+
+    gameEl.textContent =
+        gameCount;
+
+}
+
+
+/* ==========================================
+   履歴
+========================================== */
+
+function addHistory(
+    text
+) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        "G" +
+        gameCount +
+        " : " +
+        text;
+
+
+    historyEl.appendChild(div);
+
+
+    historyEl.scrollTop =
+        historyEl.scrollHeight;
+
+}
+
+
+/* ==========================================
+   ランプ
+========================================== */
+
+function flashLamps() {
+
+    const lamps =
+        document.querySelectorAll(
+            ".lamp"
+        );
+
+
+    let count = 0;
+
+
+    const timer =
+        setInterval(() => {
+
+            lamps.forEach(
+                lamp => {
+
+                    lamp.classList.toggle(
+                        "on"
+                    );
+
+                }
+            );
+
+
+            count++;
+
+
+            if (count >= 8) {
+
+                clearInterval(timer);
+
+                lamps.forEach(
+                    lamp => {
+
+                        lamp.classList.remove(
+                            "on"
+                        );
+
+                    }
+                );
+
+            }
+
+        }, 100);
+
+}
+
+
+/* ==========================================
+   BET
+========================================== */
+
+document
+    .getElementById("bet1")
+    .addEventListener(
+        "click",
+        () => {
+
+            if (
+                credit >= 1 &&
+                !spinning
+            ) {
+
+                credit--;
+
+                bet++;
+
+                updateDisplay();
+
+                displayMain.textContent =
+                    "BET " + bet;
+
+            }
+
+        }
+    );
+
+
+/* ==========================================
+   MAX BET
+========================================== */
+
+document
+    .getElementById("maxBet")
+    .addEventListener(
+        "click",
+        () => {
+
+            if (spinning) {
+
+                return;
+
+            }
+
+
+            const amount =
+                Math.min(
+                    3,
+                    credit
+                );
+
+
+            credit -= amount;
+
+            bet += amount;
+
+
+            displayMain.textContent =
+                "MAX BET";
+
+            displaySub.textContent =
+                bet + " MEDAL";
+
+
+            updateDisplay();
+
+        }
+    );
+
+
+/* ==========================================
+   STARTボタン
+========================================== */
+
+document
+    .getElementById("start")
+    .addEventListener(
+        "click",
+        () => {
+
+            /*
+                すでにBETされていれば
+                そのBETを利用
+            */
+
+            if (
+                bonusMode === null &&
+                !spinning &&
+                bet >= 3
+            ) {
+
+                bet = 0;
+
+                gameCount++;
+
+                spinning = true;
+
+                stopCount = 0;
+
+                payout = 0;
+
+
+                const result =
+                    lottery();
+
+                currentResult =
+                    createResult(result);
+
+
+                displayMain.textContent =
+                    "SPIN";
+
+                displaySub.textContent =
+                    "STOP";
+
+
+                startReel(0);
+                startReel(1);
+                startReel(2);
+
+
+                updateDisplay();
+
+                return;
+
+            }
+
+
+            /*
+                BETされていない場合
+            */
+
+            startGame();
+
+        }
+    );
+
+
+/* ==========================================
+   STOPボタン
+========================================== */
+
+document
+    .getElementById("stop0")
+    .addEventListener(
+        "click",
+        () => stop(0)
+    );
+
+
+document
+    .getElementById("stop1")
+    .addEventListener(
+        "click",
+        () => stop(1)
+    );
+
+
+document
+    .getElementById("stop2")
+    .addEventListener(
+        "click",
+        () => stop(2)
+    );
+
+
+/* ==========================================
+   キーボード操作
+========================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        /*
+            SPACE
+            START
+        */
+
+        if (
+            event.code === "Space"
+        ) {
+
+            event.preventDefault();
+
+            startGame();
+
+        }
+
+
+        /*
+            Z X C
+            STOP
+        */
+
+        if (
+            event.key.toLowerCase()
+            === "z"
+        ) {
+
+            stop(0);
+
+        }
+
+
+        if (
+            event.key.toLowerCase()
+            === "x"
+        ) {
+
+            stop(1);
+
+        }
+
+
+        if (
+            event.key.toLowerCase()
+            === "c"
+        ) {
+
+            stop(2);
+
+        }
+
+    }
+);
+
+
+/* ==========================================
+   初期表示
+========================================== */
+
+showSymbol(
+    reels[0],
+    SYMBOLS[1]
+);
+
+showSymbol(
+    reels[1],
+    SYMBOLS[0]
+);
+
+showSymbol(
+    reels[2],
+    SYMBOLS[2]
+);
+
+updateDisplay();
+
+</script>
+
+</body>
+</html>
+
